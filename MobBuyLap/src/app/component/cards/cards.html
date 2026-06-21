@@ -1,0 +1,19 @@
+<div class="card" style="width: 18rem;">
+  <img src="{{ product.thumbnail }}" class="card-img-top" alt="{{ product.title }}">
+
+  <div class="card-body">
+    <h5 class="card-title">{{ product.title }}</h5>
+    <p class="card-text">{{ product.brand }}<br>
+        <b>${{ product.price }}</b></p>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">
+    {{ product.discountPercentage }}% OFF<br>
+    ⭐ {{ product.rating }}<br>
+    {{ product.availabilityStatus }}<br></li>
+  </ul>
+    <div class="btn-group" role="group" aria-label="Action buttons">
+      <button type="button" class="btn btn-outline-info" style="cursor: pointer;" [routerLink]="['/view-product',product.id]">More Details</button>
+      <button type="button" class="btn btn-outline-warning">Buy</button>
+    </div>
+</div>

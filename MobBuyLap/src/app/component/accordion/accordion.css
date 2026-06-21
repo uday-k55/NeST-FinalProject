@@ -1,0 +1,62 @@
+/* Container spacing */
+.container.mt-5 {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 15px;
+}
+
+/* Accordion item spacing */
+.accordion-item {
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Remove Bootstrap default harsh borders */
+.accordion.accordion-flush .accordion-item {
+  border: 1px solid #e9ecef;
+}
+
+/* Accordion button */
+.accordion-button {
+  background-color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #212529;
+  padding: 16px 18px;
+  box-shadow: none;
+  transition: background 0.2s ease;
+}
+
+/* Hover effect (subtle, not button-like) */
+.accordion-button:hover {
+  background-color: #f8f9fa;
+}
+
+/* Remove blue focus glow */
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: #dee2e6;
+}
+
+/* Expanded state */
+.accordion-button:not(.collapsed) {
+  background-color: #f1f3f5;
+  color: #0d6efd;
+}
+
+/* Accordion body */
+.accordion-body {
+  font-size: 0.95rem;
+  color: #495057;
+  line-height: 1.6;
+  padding: 16px 18px;
+  background: #ffffff;
+}
+
+/* Smooth collapse feel */
+.accordion-collapse {
+  transition: all 0.25s ease;
+}

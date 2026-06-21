@@ -1,0 +1,39 @@
+<div class="marquee">
+    <p>Special Offers Available! for a limited time only!     Hurry up and grab the best deals on our latest products!</p>
+</div>
+<app-carousel></app-carousel>
+<div class="container mt-5 text-center">
+    <h2>Welcome to MobBuyLab</h2>
+    <p>
+        Explore the latest smartphones and laptops at affordable prices.
+        Compare products and find the perfect device for your needs.
+    </p>
+</div>
+<div class="container mt-5">
+  <h3 class="text-center mb-4">Featured Categories</h3>
+
+  <div class="row justify-content-center g-4">
+
+    <!-- Mobiles Card -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm category-card" routerLink="mobiles">
+        <div class="card-body text-center">
+          <h4 class="card-title">📱 Mobiles</h4>
+          <p class="card-text">Explore latest smartphones with best deals</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laptops Card -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm category-card" routerLink="laptops">
+        <div class="card-body text-center">
+          <h4 class="card-title">💻 Laptops</h4>
+          <p class="card-text">Find powerful laptops for work and gaming</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<app-accordion [faqItems]="faqItems"></app-accordion>

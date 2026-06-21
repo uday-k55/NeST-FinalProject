@@ -1,0 +1,233 @@
+<div class="container my-4">
+
+  <!-- PRODUCT CARD -->
+  <div class="card shadow-lg border-0">
+
+    <div class="row g-0">
+
+      <!-- IMAGE CAROUSEL (DYNAMIC FIXED) -->
+      <div class="col-md-5">
+        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+
+          <div class="carousel-inner">
+
+            <div
+              class="carousel-item"
+              *ngFor="let img of product.images; let i = index"
+              [class.active]="i === 0"
+            >
+              <img [src]="img" class="d-block w-100" alt="Product Image">
+            </div>
+
+          </div>
+
+          <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+
+          <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- PRODUCT DETAILS -->
+      <div class="col-md-7">
+        <div class="card-body p-4">
+              <span class="material-symbols-outlined close-icon"
+          (click)="goBack()">
+        close
+    </span>
+
+          <h2 class="fw-bold mb-1">{{ product.title }}</h2>
+          <h6 class="text-muted mb-2">{{ product.brand }}</h6>
+
+          <!-- BADGES -->
+          <div class="mb-3">
+
+            <span class="badge bg-success me-1">
+              ⭐ {{ product.rating }}
+            </span>
+
+            <span class="badge bg-primary me-1">
+              {{ product.availabilityStatus }}
+            </span>
+
+            <span class="badge bg-dark me-1">
+              Category: {{ product.category }}
+            </span>
+
+            <span class="badge bg-warning text-dark me-1">
+              Stock: {{ product.stock }}
+            </span>
+
+            <span class="badge bg-danger">
+              Discount: -{{ product.discountPercentage }}%
+            </span>
+
+          </div>
+
+          <!-- PRICE -->
+          <h3 class="text-danger">
+            $ {{ product.price }}
+          </h3>
+
+          <!-- DESCRIPTION -->
+          <p class="lead">{{ product.description }}</p>
+
+          <!-- INFO -->
+          <div class="mb-3">
+            <p><strong>Shipping:</strong> {{ product.shippingInformation }}</p>
+            <p><strong>Return Policy:</strong> {{ product.returnPolicy }}</p>
+            <p><strong>Warranty:</strong> {{ product.warrantyInformation }}</p>
+            <p><strong>Min Order Qty:</strong> {{ product.minimumOrderQuantity }}</p>
+          </div>
+
+          <!-- BUTTONS -->
+          <button class="btn btn-primary btn-lg me-2">Add to Cart</button>
+          <button class="btn btn-outline-success btn-lg">Buy Now</button>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EXTRA INFO -->
+  <div class="row mt-4">
+
+    <!-- HIGHLIGHTS -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+
+        <div class="card-header bg-primary text-white">
+          Product Highlights
+        </div>
+
+        <div class="card-body">
+
+          <ul class="list-group list-group-flush">
+
+            <li class="list-group-item">Brand: {{ product.brand }}</li>
+            <li class="list-group-item">SKU: {{ product.sku }}</li>
+            <li class="list-group-item">Weight: {{ product.weight }} kg</li>
+
+            <li class="list-group-item">
+              Dimensions:
+              {{ product.dimensions.width }} ×
+              {{ product.dimensions.height }} ×
+              {{ product.dimensions.depth }}
+            </li>
+
+          </ul>
+
+        </div>
+      </div>
+
+      <!-- TAGS -->
+      <div class="card shadow-sm mt-3">
+
+        <div class="card-header bg-secondary text-white">
+          Tags
+        </div>
+
+        <div class="card-body">
+          <span class="badge bg-dark me-1" *ngFor="let tag of product.tags">
+            {{ tag }}
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- META INFO -->
+    <div class="col-md-6">
+
+      <div class="card shadow-sm">
+
+        <div class="card-header bg-info text-white">
+          Product Meta
+        </div>
+
+        <div class="card-body">
+
+          <p><strong>Barcode:</strong> {{ product.meta.barcode }}</p>
+
+          <p><strong>Created:</strong> {{ product.meta.createdAt | date:'medium' }}</p>
+          <p><strong>Updated:</strong> {{ product.meta.updatedAt | date:'medium' }}</p>
+
+          <img
+            [src]="product.meta.qrCode"
+            alt="QR Code"
+            class="img-fluid mt-2"
+            style="max-width:150px;"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="row mt-4">
+
+    <div class="col-md-12">
+
+      <div class="card shadow-sm">
+
+        <div class="card-header bg-dark text-white">
+          Customer Reviews
+        </div>
+
+        <div class="accordion mt-4" id="reviewsAccordion">
+
+  <div
+    class="accordion-item"
+    *ngFor="let review of product.reviews; let i = index">
+
+    <h2 class="accordion-header">
+      <button
+        class="accordion-button collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        [attr.data-bs-target]="'#reviewCollapse' + i"
+        aria-expanded="false"
+        [attr.aria-controls]="'reviewCollapse' + i">
+
+        <div class="d-flex justify-content-between w-100 me-3">
+          <strong>{{ review.reviewerName }}</strong>
+          <span class="text-warning">
+            ⭐ {{ review.rating }}/5
+          </span>
+        </div>
+
+      </button>
+    </h2>
+
+    <div
+      [id]="'reviewCollapse' + i"
+      class="accordion-collapse collapse"
+      data-bs-parent="#reviewsAccordion">
+
+      <div class="accordion-body">
+
+        <p class="mb-2">{{ review.comment }}</p>
+
+        <small class="text-muted d-block">
+          {{ review.reviewerEmail }}
+        </small>
+
+        <small class="text-secondary">
+          {{ review.date | date:'mediumDate' }}
+        </small>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
