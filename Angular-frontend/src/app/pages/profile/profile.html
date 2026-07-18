@@ -1,0 +1,119 @@
+<div class="container my-5">
+  <div class="row">
+    
+    <!-- User Profile Card -->
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white p-3">
+          <h5 class="fw-bold mb-0">My Account Details</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+          
+          <div *ngIf="!loading && user">
+            <!-- View Mode -->
+            <div *ngIf="!isEditing">
+              <p><strong>Name:</strong> {{ user.name }}</p>
+              <p><strong>Email:</strong> {{ user.email }}</p>
+              <p><strong>Role:</strong> <span class="badge bg-secondary">{{ user.role }}</span></p>
+              <p><strong>Joined:</strong> {{ user.created_at | date:'mediumDate' }}</p>
+              
+              <div class="d-grid gap-2 mt-4">
+                <button type="button" class="btn btn-outline-primary" (click)="toggleEdit()">Edit Profile</button>
+              </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <div *ngIf="isEditing">
+              <div *ngIf="errorMessage" class="alert alert-danger p-2" role="alert">
+                <small>{{ errorMessage }}</small>
+              </div>
+              <div *ngIf="successMessage" class="alert alert-success p-2" role="alert">
+                <small>{{ successMessage }}</small>
+              </div>
+
+              <form (ngSubmit)="onSave()">
+                <div class="mb-3">
+                  <label for="profileName" class="form-label">Full Name</label>
+                  <input type="text" class="form-control" id="profileName" name="name" [(ngModel)]="name" required />
+                </div>
+                <div class="mb-3">
+                  <label for="profileEmail" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="profileEmail" name="email" [(ngModel)]="email" required />
+                </div>
+                <div class="mb-3">
+                  <label for="profilePassword" class="form-label">New Password (optional)</label>
+                  <input type="password" class="form-control" id="profilePassword" name="password" [(ngModel)]="password" placeholder="Leave blank to keep current" />
+                </div>
+                <div class="mb-3" *ngIf="password">
+                  <label for="profileConfirmPassword" class="form-label">Confirm New Password</label>
+                  <input type="password" class="form-control" id="profileConfirmPassword" name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Confirm password" />
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                  <button type="button" class="btn btn-outline-secondary" (click)="toggleEdit()">Cancel</button>
+                  <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order History List -->
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white p-3">
+          <h5 class="fw-bold mb-0">My Order History</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="orders.length === 0" class="text-center py-5">
+            <h5 class="text-muted mb-3">No orders placed yet.</h5>
+            <button routerLink="/" class="btn btn-primary">Start Shopping</button>
+          </div>
+
+          <div *ngIf="orders.length > 0" class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Total Amount</th>
+                  <th>Payment Status</th>
+                  <th>Order Status</th>
+                  <th>Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let order of orders">
+                  <td><strong>MBL-ORD-{{ order.id }}</strong></td>
+                  <td>{{ order.created_at | date:'shortDate' }}</td>
+                  <td class="text-danger fw-bold">${{ order.total_amount }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="order.payment_status === 'Paid' ? 'bg-success' : 'bg-warning text-dark'">
+                      {{ order.payment_status }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="{
+                      'bg-success': order.order_status === 'Confirmed' || order.order_status === 'Delivered',
+                      'bg-info': order.order_status === 'Shipped',
+                      'bg-warning text-dark': order.order_status === 'Pending'
+                    }">
+                      {{ order.order_status }}
+                    </span>
+                  </td>
+                  <td><small class="text-muted">{{ order.address }}</small></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

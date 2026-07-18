@@ -1,0 +1,56 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white text-center p-4">
+          <h3 class="fw-bold mb-0">MobBuyLab Login</h3>
+        </div>
+        <div class="card-body p-4">
+          
+          <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+            {{ errorMessage }}
+          </div>
+          <div *ngIf="successMessage" class="alert alert-success" role="alert">
+            {{ successMessage }}
+          </div>
+
+          <form (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email address</label>
+              <input 
+                type="email" 
+                class="form-label form-control" 
+                id="email" 
+                name="email" 
+                [(ngModel)]="email" 
+                placeholder="Enter email"
+                required
+              />
+            </div>
+            
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input 
+                type="password" 
+                class="form-label form-control" 
+                id="password" 
+                name="password" 
+                [(ngModel)]="password" 
+                placeholder="Enter password"
+                required
+              />
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-primary btn-lg">Login</button>
+            </div>
+          </form>
+
+          <div class="text-center mt-3">
+            <p class="mb-1 text-muted">Don't have an account? <a routerLink="/register" class="text-primary fw-bold">Register here</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

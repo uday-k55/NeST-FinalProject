@@ -1,0 +1,150 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      
+      <!-- LOADING & PROCESSING VIEW -->
+      <div class="card shadow border-0 text-center p-5" *ngIf="isProcessing">
+        <div class="spinner-grow text-success mb-4" style="width: 4rem; height: 4rem;" role="status"></div>
+        <h3 class="fw-bold">Processing Payment...</h3>
+        <p class="text-muted">Please do not close this window or click refresh.</p>
+      </div>
+
+      <!-- SUCCESS VIEW -->
+      <div class="card shadow border-0 text-center p-5" *ngIf="isSuccess">
+        <div class="mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+          </svg>
+        </div>
+        <h2 class="fw-bold text-success">✔ Payment Successful</h2>
+        <h5 class="mt-3 text-secondary">Transaction ID: {{ transactionId }}</h5>
+        <p class="text-muted mt-2">Updating database and redirecting to order success page...</p>
+      </div>
+
+      <!-- PAYMENT FORM GATEWAY -->
+      <div class="card shadow border-0" *ngIf="!isProcessing && !isSuccess">
+        <div class="card-header bg-dark text-white text-center p-4">
+          <h3 class="fw-bold mb-0">MobBuyLab Pay</h3>
+          <small class="text-secondary">Secure Payment Gateway</small>
+        </div>
+        <div class="card-body p-4">
+          
+          <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded">
+            <span>Order ID: <strong>MBL-ORD-{{ orderId }}</strong></span>
+            <span class="fs-5 text-danger fw-bold">Amount: ${{ totalAmount | number:'1.2-2' }}</span>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+            {{ errorMessage }}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold mb-2">Select Payment Method</label>
+            <div class="d-flex gap-4">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="payMethod" id="payUpi" value="upi" [(ngModel)]="paymentMethod" />
+                <label class="form-check-label fw-bold" for="payUpi">
+                  ● UPI
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="payMethod" id="payCard" value="card" [(ngModel)]="paymentMethod" />
+                <label class="form-check-label fw-bold" for="payCard">
+                  ● Debit/Credit Card
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <!-- UPI Form Fields -->
+          <div *ngIf="paymentMethod === 'upi'">
+            <div class="mb-4">
+              <label for="upiId" class="form-label">UPI ID</label>
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                id="upiId" 
+                name="upiId" 
+                [(ngModel)]="upiId" 
+                placeholder="example@okaxis"
+                required
+              />
+              <small class="text-muted d-block mt-1">Enter your virtual payment address (VPA) to request payment.</small>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="button" class="btn btn-success btn-lg" (click)="processPayment()">Pay ${{ totalAmount | number:'1.2-2' }}</button>
+            </div>
+          </div>
+
+          <!-- Card Form Fields -->
+          <div *ngIf="paymentMethod === 'card'">
+            <div class="mb-3">
+              <label for="cardHolderName" class="form-label">Card Holder Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="cardHolderName" 
+                name="cardHolderName" 
+                [(ngModel)]="cardHolderName" 
+                placeholder="Holder's full name"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="cardNumber" class="form-label">Card Number</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="cardNumber" 
+                name="cardNumber" 
+                [(ngModel)]="cardNumber" 
+                placeholder="1234 5678 1234 5678"
+                maxlength="19"
+                required
+              />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="expiryDate" class="form-label">Expiry Date</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="expiryDate" 
+                  name="expiryDate" 
+                  [(ngModel)]="expiryDate" 
+                  placeholder="MM/YY"
+                  maxlength="5"
+                  required
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="cvv" class="form-label">CVV</label>
+                <input 
+                  type="password" 
+                  class="form-control" 
+                  id="cvv" 
+                  name="cvv" 
+                  [(ngModel)]="cvv" 
+                  placeholder="123"
+                  maxlength="3"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="button" class="btn btn-success btn-lg" (click)="processPayment()">Pay ${{ totalAmount | number:'1.2-2' }}</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<nav class="navbar bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" style="font-size: 73px; font-weight: bold;">
+      <img src="logo1.png" alt="Logo" width="190" height="154" class="d-inline-block align-text-top">
+        MobBuyLap
+    </a>
+  </div><hr>
+</nav>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="mobiles" routerLinkActive="active">Mobiles</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="laptops" routerLinkActive="active">Laptops</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="about" routerLinkActive="active">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="contact" routerLinkActive="active">Contact</a>
+        </li>
+      </ul>
+      
+      <!-- Authentication state items -->
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-3">
+        <li class="nav-item" *ngIf="!api.isLoggedIn()">
+          <a class="nav-link" routerLink="login" routerLinkActive="active">Login</a>
+        </li>
+        <li class="nav-item" *ngIf="!api.isLoggedIn()">
+          <a class="nav-link" routerLink="register" routerLinkActive="active">Register</a>
+        </li>
+        <li class="nav-item" *ngIf="api.isLoggedIn() && !api.isAdmin()">
+          <a class="nav-link" routerLink="cart" routerLinkActive="active">
+            🛒 Cart <span class="badge bg-danger rounded-pill">{{ api.cartItemCount() }}</span>
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="api.isLoggedIn() && !api.isAdmin()">
+          <a class="nav-link" routerLink="profile" routerLinkActive="active">My Account</a>
+        </li>
+        <li class="nav-item" *ngIf="api.isLoggedIn() && api.isAdmin()">
+          <a class="nav-link text-danger fw-bold" routerLink="admin" routerLinkActive="active">Admin Panel</a>
+        </li>
+        <li class="nav-item" *ngIf="api.isLoggedIn()">
+          <a class="nav-link" (click)="onLogout()" style="cursor: pointer;">Logout</a>
+        </li>
+      </ul>
+
+      <!-- Search form -->
+      <form class="d-flex" role="search" (submit)="onSearchSubmit($event, searchInput)">
+        <input #searchInput class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>

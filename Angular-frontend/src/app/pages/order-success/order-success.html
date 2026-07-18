@@ -1,0 +1,39 @@
+<div class="container my-5 text-center">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+      
+      <div class="card shadow-lg border-0 p-5">
+        <div class="mb-4 text-success">
+          <svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" fill="currentColor" class="bi bi-bag-check-fill" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M10.5 3.5a2.5 2.5 0 0 0-5 0V4h5v-.5zm1 0V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h3.5v-.5a3.5 3.5 0 1 1 7 0zm-.646 5.354a.5.5 0 0 0-.708-.708L7.5 10.793 6.354 9.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/>
+          </svg>
+        </div>
+
+        <h1 class="fw-bold text-success mb-3">✔ Order Placed Successfully</h1>
+        <p class="lead text-muted mb-4">Thank you for your purchase! Your payment has been processed and your order is being prepared.</p>
+
+        <div class="row bg-light p-4 rounded mb-4 text-start justify-content-center">
+          <div class="col-sm-6 mb-2">
+            <span class="text-muted d-block">Order Number</span>
+            <strong class="fs-5 text-dark">MBL-ORD-{{ orderId }}</strong>
+          </div>
+          <div class="col-sm-6 mb-2">
+            <span class="text-muted d-block">Estimated Delivery</span>
+            <strong class="fs-5 text-primary">{{ estimatedDelivery | date:'fullDate' }}</strong>
+          </div>
+          <div class="col-12 mt-3 border-top pt-3">
+            <span class="text-muted">Transaction ID: </span>
+            <span class="fw-bold text-dark">{{ transactionId }}</span>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 col-md-6 mx-auto">
+          <button routerLink="/" class="btn btn-primary btn-lg">Continue Shopping</button>
+          <button routerLink="/profile" class="btn btn-outline-secondary">View Order History</button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
