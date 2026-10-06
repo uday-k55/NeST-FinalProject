@@ -1,61 +1,110 @@
-<nav class="navbar bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#" style="font-size: 73px; font-weight: bold;">
-      <img src="logo1.png" alt="Logo" width="190" height="154" class="d-inline-block align-text-top">
-        MobBuyLap
-    </a>
-  </div><hr>
-</nav>
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="mobiles" routerLinkActive="active">Mobiles</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="laptops" routerLinkActive="active">Laptops</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="about" routerLinkActive="active">About</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="contact" routerLinkActive="active">Contact</a>
-        </li>
-      </ul>
+<header class="site-header shadow-sm sticky-top">
+  <!-- Top Branding & Utility Bar -->
+  <nav class="navbar main-header-navbar py-2 py-lg-3">
+    <div class="container-fluid px-3 px-lg-4">
       
-      <!-- Authentication state items -->
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 me-3">
-        <li class="nav-item" *ngIf="!api.isLoggedIn()">
-          <a class="nav-link" routerLink="login" routerLinkActive="active">Login</a>
-        </li>
-        <li class="nav-item" *ngIf="!api.isLoggedIn()">
-          <a class="nav-link" routerLink="register" routerLinkActive="active">Register</a>
-        </li>
-        <li class="nav-item" *ngIf="api.isLoggedIn() && !api.isAdmin()">
-          <a class="nav-link" routerLink="cart" routerLinkActive="active">
-            🛒 Cart <span class="badge bg-danger rounded-pill">{{ api.cartItemCount() }}</span>
-          </a>
-        </li>
-        <li class="nav-item" *ngIf="api.isLoggedIn() && !api.isAdmin()">
-          <a class="nav-link" routerLink="profile" routerLinkActive="active">My Account</a>
-        </li>
-        <li class="nav-item" *ngIf="api.isLoggedIn() && api.isAdmin()">
-          <a class="nav-link text-danger fw-bold" routerLink="admin" routerLinkActive="active">Admin Panel</a>
-        </li>
-        <li class="nav-item" *ngIf="api.isLoggedIn()">
-          <a class="nav-link" (click)="onLogout()" style="cursor: pointer;">Logout</a>
-        </li>
-      </ul>
+      <!-- Brand Section -->
+      <a class="navbar-brand d-flex align-items-center me-2 me-lg-4" routerLink="/">
+        <img src="logo1.png" alt="MobBuyLab Logo" class="brand-logo me-2 me-md-3">
+        <span class="brand-name">MobBuyLab</span>
+      </a>
 
-      <!-- Search form -->
-      <form class="d-flex" role="search" (submit)="onSearchSubmit($event, searchInput)">
-        <input #searchInput class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
+      <!-- Desktop Search Bar -->
+      <form class="search-form flex-grow-1 mx-2 mx-lg-4 d-none d-md-flex" role="search" (submit)="onSearchSubmit($event, searchInputDesktop)">
+        <div class="input-group search-group">
+          <input #searchInputDesktop class="form-control search-input" type="search" placeholder="Search mobiles, laptops..." aria-label="Search" />
+          <button class="btn btn-search btn-outline-success" type="submit">
+            <span class="search-icon">🔍</span> Search
+          </button>
+        </div>
+      </form>
+
+      <!-- Right Action Items (Wishlist, Cart, My Account, Logout / Login, Register) -->
+      <div class="d-flex align-items-center gap-2 gap-lg-3 ms-auto header-actions">
+        
+        <!-- Logged In User Actions -->
+        <ng-container *ngIf="api.isLoggedIn()">
+          <a class="nav-link header-action-btn wishlist-btn" routerLink="wishlist" routerLinkActive="active" *ngIf="!api.isAdmin()" title="Wishlist">
+            <span class="action-emoji">❤️</span>
+            <span class="action-title">Wishlist</span>
+            <span class="badge count-badge bg-danger rounded-pill">{{ api.wishlistCount() }}</span>
+          </a>
+
+          <a class="nav-link header-action-btn cart-btn" routerLink="cart" routerLinkActive="active" *ngIf="!api.isAdmin()" title="Shopping Cart">
+            <span class="action-emoji">🛒</span>
+            <span class="action-title">Cart</span>
+            <span class="badge count-badge bg-primary rounded-pill">{{ api.cartItemCount() }}</span>
+          </a>
+
+          <a class="nav-link header-action-btn account-btn d-none d-sm-inline-flex" routerLink="profile" routerLinkActive="active" *ngIf="!api.isAdmin()">
+            <span class="action-title">My Account</span>
+          </a>
+
+          <a class="nav-link header-action-btn admin-badge-btn" routerLink="admin" routerLinkActive="active" *ngIf="api.isAdmin()">
+            <span class="action-title text-danger fw-bold">Admin Panel</span>
+          </a>
+
+          <a class="nav-link header-action-btn logout-btn d-none d-sm-inline-flex" (click)="onLogout()" style="cursor: pointer;" title="Logout">
+            <span class="action-title">Logout</span>
+          </a>
+        </ng-container>
+
+        <!-- Guest Actions -->
+        <ng-container *ngIf="!api.isLoggedIn()">
+          <a class="nav-link header-action-btn guest-btn" routerLink="login" routerLinkActive="active">Login</a>
+          <a class="nav-link header-action-btn register-highlight" routerLink="register" routerLinkActive="active">Register</a>
+        </ng-container>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="navbar-toggler d-lg-none menu-toggle-btn border-0 shadow-none" type="button" (click)="toggleMenu()" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- Mobile Search Row (visible on small devices) -->
+    <div class="container-fluid px-3 pt-2 d-md-none">
+      <form class="search-form w-100" role="search" (submit)="onSearchSubmit($event, searchInputMobile)">
+        <div class="input-group search-group">
+          <input #searchInputMobile class="form-control search-input" type="search" placeholder="Search mobiles, laptops..." aria-label="Search" />
+          <button class="btn btn-search btn-outline-success" type="submit">Search</button>
+        </div>
       </form>
     </div>
-  </div>
-</nav>
+  </nav>
+
+  <!-- Bottom Navigation / Categories Bar -->
+  <nav class="navbar navbar-expand-lg sub-navbar py-0">
+    <div class="container-fluid px-3 px-lg-4">
+      <div class="collapse navbar-collapse" [class.show]="isMenuOpen" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 py-2 py-lg-1">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="mobiles" routerLinkActive="active" (click)="closeMenu()">Mobiles</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="laptops" routerLinkActive="active" (click)="closeMenu()">Laptops</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="about" routerLinkActive="active" (click)="closeMenu()">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
+          </li>
+
+          <!-- Mobile Only User Links inside collapsed menu -->
+          <li class="nav-item d-sm-none" *ngIf="api.isLoggedIn() && !api.isAdmin()">
+            <a class="nav-link" routerLink="profile" routerLinkActive="active" (click)="closeMenu()">My Account</a>
+          </li>
+          <li class="nav-item d-sm-none" *ngIf="api.isLoggedIn()">
+            <a class="nav-link" (click)="onLogout()" style="cursor: pointer;">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

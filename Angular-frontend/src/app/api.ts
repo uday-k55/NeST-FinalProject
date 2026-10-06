@@ -12,6 +12,8 @@ export class Api {
   // Signals to track state across components
   currentUser = signal<any>(null);
   cartItemCount = signal<number>(0);
+  wishlistProductIds = signal<number[]>([]);
+  wishlistCount = signal<number>(0);
 
   constructor(private http: HttpClient) {
     this.loadUserFromStorage();
@@ -26,6 +28,7 @@ export class Api {
         try {
           this.currentUser.set(JSON.parse(userStr));
           this.syncCartCount();
+          this.syncWishlist();
         } catch (e) {
           this.logout();
         }
@@ -65,6 +68,8 @@ export class Api {
     }
     this.currentUser.set(null);
     this.cartItemCount.set(0);
+    this.wishlistProductIds.set([]);
+    this.wishlistCount.set(0);
   }
 
   // --- Auth API ---
@@ -80,6 +85,7 @@ export class Api {
           localStorage.setItem('user', JSON.stringify(res.user));
           this.currentUser.set(res.user);
           this.syncCartCount();
+          this.syncWishlist();
         }
       })
     );
@@ -161,9 +167,91 @@ export class Api {
     }
   }
 
+  // --- Wishlist API ---
+  getWishlist(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/wishlist`, this.getHeaders()).pipe(
+      tap((items: any) => {
+        if (Array.isArray(items)) {
+          this.wishlistCount.set(items.length);
+          this.wishlistProductIds.set(items.map((it: any) => it.id));
+        }
+      })
+    );
+  }
+
+  getWishlistIds(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.baseUrl}/wishlist/ids`, this.getHeaders()).pipe(
+      tap((ids: number[]) => {
+        if (Array.isArray(ids)) {
+          this.wishlistProductIds.set(ids);
+          this.wishlistCount.set(ids.length);
+        }
+      })
+    );
+  }
+
+  toggleWishlist(productId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/wishlist/toggle`, { product_id: productId }, this.getHeaders()).pipe(
+      tap((res: any) => {
+        const currentIds = this.wishlistProductIds();
+        if (res.inWishlist) {
+          if (!currentIds.includes(productId)) {
+            const updated = [...currentIds, productId];
+            this.wishlistProductIds.set(updated);
+            this.wishlistCount.set(updated.length);
+          }
+        } else {
+          const updated = currentIds.filter(id => id !== productId);
+          this.wishlistProductIds.set(updated);
+          this.wishlistCount.set(updated.length);
+        }
+      })
+    );
+  }
+
+  addToWishlist(productId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/wishlist`, { product_id: productId }, this.getHeaders()).pipe(
+      tap(() => this.syncWishlist())
+    );
+  }
+
+  removeFromWishlist(productId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/wishlist/${productId}`, this.getHeaders()).pipe(
+      tap(() => {
+        const updated = this.wishlistProductIds().filter(id => id !== productId);
+        this.wishlistProductIds.set(updated);
+        this.wishlistCount.set(updated.length);
+      })
+    );
+  }
+
+  isInWishlist(productId: number): boolean {
+    return this.wishlistProductIds().includes(productId);
+  }
+
+  removeProductsFromWishlist(productIds: number[]) {
+    if (!productIds || productIds.length === 0) return;
+    const numIds = productIds.map(id => Number(id));
+    const current = this.wishlistProductIds();
+    const updated = current.filter(id => !numIds.includes(id));
+    this.wishlistProductIds.set(updated);
+    this.wishlistCount.set(updated.length);
+    this.syncWishlist();
+  }
+
+  syncWishlist() {
+    if (this.isLoggedIn()) {
+      this.getWishlistIds().subscribe({
+        next: () => {},
+        error: () => {}
+      });
+    }
+  }
+
   // --- Orders API ---
-  createOrder(address: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/orders`, { address }, this.getHeaders());
+  createOrder(orderData: any): Observable<any> {
+    const payload = typeof orderData === 'string' ? { address: orderData } : orderData;
+    return this.http.post(`${this.baseUrl}/orders`, payload, this.getHeaders());
   }
 
   getOrders(): Observable<any> {

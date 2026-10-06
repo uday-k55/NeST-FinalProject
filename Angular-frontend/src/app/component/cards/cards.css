@@ -59,3 +59,15 @@
     transform:scale(1.03);
     transition:0.2s;
 }
+
+.wishlist-btn {
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.08);
+}

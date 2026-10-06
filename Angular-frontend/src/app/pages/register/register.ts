@@ -21,12 +21,47 @@ export class Register {
 
   constructor(private api: Api, private router: Router, private cdr: ChangeDetectorRef) {}
 
+  validateEmail(email: string): boolean {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email.trim());
+  }
+
+  validatePassword(password: string): string | null {
+    if (password.length < 8 || password.length > 32) {
+      return 'Password must be between 8 and 32 characters long.';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter (A-Z).';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter (a-z).';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number (0-9).';
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return 'Password must contain at least one special character (!@#$%^&*...).';
+    }
+    return null;
+  }
+
   onSubmit() {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.name || !this.email || !this.password || !this.confirmPassword) {
-      this.errorMessage = 'All fields are required.';
+    if (!this.name.trim() || !/^[A-Za-z\s]{2,50}$/.test(this.name.trim())) {
+      this.errorMessage = 'Please enter a valid Full Name containing only letters and spaces (2-50 characters).';
+      return;
+    }
+
+    if (!this.email.trim() || !this.validateEmail(this.email)) {
+      this.errorMessage = 'Please enter a valid email address (e.g. name@example.com).';
+      return;
+    }
+
+    const pwdError = this.validatePassword(this.password);
+    if (pwdError) {
+      this.errorMessage = pwdError;
       return;
     }
 
@@ -35,14 +70,9 @@ export class Register {
       return;
     }
 
-    if (this.password.length < 6) {
-      this.errorMessage = 'Password must be at least 6 characters.';
-      return;
-    }
-
     const newUser = {
-      name: this.name,
-      email: this.email,
+      name: this.name.trim(),
+      email: this.email.trim(),
       password: this.password
     };
 

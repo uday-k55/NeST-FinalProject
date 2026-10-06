@@ -1,0 +1,73 @@
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <h2 class="fw-bold mb-0">❤️ My Wishlist</h2>
+    <span class="badge bg-danger rounded-pill fs-6 px-3 py-2" *ngIf="items.length > 0">
+      {{ items.length }} {{ items.length === 1 ? 'item' : 'items' }}
+    </span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Loading your wishlist...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Error Alert -->
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Empty Wishlist -->
+    <div *ngIf="items.length === 0" class="text-center py-5 card shadow-sm border-0 p-5">
+      <div class="mb-3 fs-1 text-muted">♡</div>
+      <h4 class="text-muted mb-3">Your wishlist is currently empty.</h4>
+      <p class="text-secondary mb-4">Explore our smartphones and laptops to save items you love!</p>
+      <div>
+        <button routerLink="/" class="btn btn-primary btn-lg px-4 me-2">Explore Products</button>
+        <button routerLink="/mobiles" class="btn btn-outline-secondary btn-lg px-4">Browse Mobiles</button>
+      </div>
+    </div>
+
+    <!-- Wishlist Items Grid -->
+    <div *ngIf="items.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div class="col" *ngFor="let item of items">
+        <div class="card h-100 shadow-sm border-0 wishlist-card">
+          <div class="text-center p-3 bg-light rounded-top position-relative">
+            <img [src]="item.thumbnail" [alt]="item.title || item.name" class="img-fluid rounded" style="max-height: 180px; object-fit: contain;" />
+            <span class="badge bg-dark position-absolute top-0 start-0 m-2">{{ item.category }}</span>
+          </div>
+
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title fw-bold mb-1">{{ item.title || item.name }}</h5>
+            <small class="text-muted mb-2 d-block">{{ item.brand }}</small>
+            
+            <div class="my-2">
+              <span class="fs-4 text-danger fw-bold">₹{{ item.price | number:'1.2-2' }}</span>
+              <span class="badge bg-success ms-2">{{ item.availabilityStatus }}</span>
+            </div>
+
+            <p class="card-text text-secondary small flex-grow-1" *ngIf="item.description">
+              {{ (item.description.length > 90) ? (item.description | slice:0:90) + '...' : item.description }}
+            </p>
+
+            <div class="d-grid gap-2 mt-3 pt-2 border-top">
+              <button type="button" class="btn btn-success fw-semibold" (click)="addToCart(item)">
+                🛒 Add to Cart
+              </button>
+              <div class="btn-group">
+                <button type="button" class="btn btn-outline-primary btn-sm" [routerLink]="['/view-product', item.id]">
+                  View Details
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeFromWishlist(item)">
+                  🗑 Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -12,6 +12,7 @@ import { Cart } from './pages/cart/cart';
 import { Payment } from './pages/payment/payment';
 import { OrderSuccess } from './pages/order-success/order-success';
 import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
+import { Wishlist } from './pages/wishlist/wishlist';
 
 export const routes: Routes = [
     {path: '',component:Home},
@@ -24,6 +25,7 @@ export const routes: Routes = [
     {path: 'register',component:Register},
     {path: 'profile',component:Profile},
     {path: 'cart',component:Cart},
+    {path: 'wishlist',component:Wishlist},
     {path: 'payment',component:Payment},
     {path: 'order-success',component:OrderSuccess},
     {path: 'admin',component:AdminDashboard}

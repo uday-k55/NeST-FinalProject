@@ -29,6 +29,12 @@ export class Login {
       return;
     }
 
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(this.email.trim())) {
+      this.errorMessage = 'Please enter a valid email address (e.g. name@example.com).';
+      return;
+    }
+
     const credentials = { email: this.email, password: this.password };
     this.api.login(credentials).subscribe({
       next: (res: any) => {

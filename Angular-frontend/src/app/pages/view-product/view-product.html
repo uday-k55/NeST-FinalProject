@@ -5,88 +5,106 @@
 
     <div class="row g-0">
 
-      <!-- IMAGE CAROUSEL (DYNAMIC FIXED) -->
-      <div class="col-md-5">
-        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+      <!-- IMAGE CAROUSEL (DYNAMIC EXTENDED) -->
+      <div class="col-md-5 p-3">
+        <div id="productCarousel" class="carousel slide border rounded shadow-sm overflow-hidden bg-white">
 
           <div class="carousel-inner">
-
             <div
               class="carousel-item"
-              *ngFor="let img of product.images; let i = index"
-              [class.active]="i === 0"
+              *ngFor="let img of product?.images; let i = index"
+              [class.active]="i === selectedImageIndex"
             >
-              <img [src]="img" class="d-block w-100" alt="Product Image">
+              <img [src]="img" class="d-block w-100 p-3" alt="Product Image" style="height: 380px; object-fit: contain;">
             </div>
-
           </div>
 
-          <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
+          <button class="carousel-control-prev" type="button" (click)="prevImage()" *ngIf="product?.images?.length > 1">
+            <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
           </button>
 
-          <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
+          <button class="carousel-control-next" type="button" (click)="nextImage()" *ngIf="product?.images?.length > 1">
+            <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
           </button>
 
+        </div>
+
+        <!-- THUMBNAIL SELECTOR ROW -->
+        <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap" *ngIf="product?.images && product?.images?.length > 1">
+          <div 
+            *ngFor="let img of product.images; let i = index"
+            class="thumbnail-box border rounded p-1"
+            [class.border-primary]="i === selectedImageIndex"
+            [class.border-3]="i === selectedImageIndex"
+            [class.shadow-sm]="i === selectedImageIndex"
+            (click)="selectImage(i)"
+            style="cursor: pointer; width: 70px; height: 70px; transition: all 0.2s ease;">
+            <img [src]="img" class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: contain;" [alt]="'Image ' + (i + 1)">
+          </div>
         </div>
       </div>
 
       <!-- PRODUCT DETAILS -->
       <div class="col-md-7">
         <div class="card-body p-4">
-              <span class="material-symbols-outlined close-icon"
-          (click)="goBack()">
-        close
-    </span>
+          <span class="material-symbols-outlined close-icon" (click)="goBack()">
+            close
+          </span>
 
-          <h2 class="fw-bold mb-1">{{ product.title }}</h2>
-          <h6 class="text-muted mb-2">{{ product.brand }}</h6>
+          <h2 class="fw-bold mb-1">{{ product?.title }}</h2>
+          <h6 class="text-muted mb-3">{{ product?.brand }}</h6>
 
           <!-- BADGES -->
           <div class="mb-3">
-
             <span class="badge bg-success me-1">
-              ⭐ {{ product.rating }}
+              ⭐ {{ product?.rating }}
             </span>
-
             <span class="badge bg-primary me-1">
-              {{ product.availabilityStatus }}
+              {{ product?.availabilityStatus }}
             </span>
-
             <span class="badge bg-dark me-1">
-              Category: {{ product.category }}
+              Category: {{ product?.category }}
             </span>
-
             <span class="badge bg-warning text-dark me-1">
-              Stock: {{ product.stock }}
+              Stock: {{ product?.stock }}
             </span>
-
             <span class="badge bg-danger">
-              Discount: -{{ product.discountPercentage }}%
+              Discount: -{{ product?.discountPercentage }}%
             </span>
-
           </div>
 
           <!-- PRICE -->
-          <h3 class="text-danger">
-            $ {{ product.price }}
+          <h3 class="text-danger fw-bold my-3">
+            ₹ {{ product?.price | number:'1.2-2' }}
           </h3>
 
           <!-- DESCRIPTION -->
-          <p class="lead">{{ product.description }}</p>
+          <p class="lead text-secondary">{{ product?.description }}</p>
 
           <!-- INFO -->
-          <div class="mb-3">
-            <p><strong>Shipping:</strong> {{ product.shippingInformation }}</p>
-            <p><strong>Return Policy:</strong> {{ product.returnPolicy }}</p>
-            <p><strong>Warranty:</strong> {{ product.warrantyInformation }}</p>
-            <p><strong>Min Order Qty:</strong> {{ product.minimumOrderQuantity }}</p>
+          <div class="mb-4">
+            <p class="mb-1"><strong>Shipping:</strong> {{ product?.shippingInformation }}</p>
+            <p class="mb-1"><strong>Return Policy:</strong> {{ product?.returnPolicy }}</p>
+            <p class="mb-1"><strong>Warranty:</strong> {{ product?.warrantyInformation }}</p>
+            <p class="mb-1"><strong>Min Order Qty:</strong> {{ product?.minimumOrderQuantity }}</p>
           </div>
 
           <!-- BUTTONS -->
-          <button class="btn btn-primary btn-lg me-2" (click)="addToCart()">Add to Cart</button>
-          <button class="btn btn-outline-success btn-lg" (click)="buyNow()">Buy Now</button>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button class="btn btn-primary btn-lg" (click)="addToCart()">Add to Cart</button>
+            <button class="btn btn-success btn-lg" (click)="buyNow()">Buy Now</button>
+            <button 
+              type="button"
+              class="btn btn-lg" 
+              [class.btn-outline-danger]="!isInWishlist()" 
+              [class.btn-danger]="isInWishlist()"
+              [class.text-white]="isInWishlist()"
+              (click)="toggleWishlist()">
+              {{ isInWishlist() ? '❤️ Wishlist' : '♡ Add to Wishlist' }}
+            </button>
+          </div>
 
         </div>
       </div>

@@ -1,13 +1,21 @@
 const db = require('../config/db');
 
+function formatImageUrl(img) {
+  if (!img) return null;
+  if (img.startsWith('http://') || img.startsWith('https://')) return img;
+  return `http://localhost:5000/${img.replace(/\\/g, '/')}`;
+}
+
 // Helper to map DB product model to the shape expected by the frontend templates
 function mapProduct(p) {
   if (!p) return null;
-  const imageUrl = p.image && (p.image.startsWith('http://') || p.image.startsWith('https://'))
-    ? p.image
-    : p.image
-      ? `http://localhost:5000/${p.image.replace(/\\/g, '/')}`
-      : 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500';
+  const mainImage = formatImageUrl(p.image) || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500';
+  const img2 = formatImageUrl(p.image_2);
+  const img3 = formatImageUrl(p.image_3);
+
+  const images = [mainImage];
+  if (img2) images.push(img2);
+  if (img3) images.push(img3);
 
   return {
     id: p.id,
@@ -20,8 +28,11 @@ function mapProduct(p) {
     stock: p.stock || 0,
     brand: 'MobBuyLab',
     category: p.category,
-    thumbnail: imageUrl,     // Maps image -> thumbnail
-    images: [imageUrl],      // Maps image -> images array
+    thumbnail: mainImage,     // Maps image -> thumbnail
+    image: mainImage,
+    image_2: img2,
+    image_3: img3,
+    images: images,          // Multi-image array for carousel
     availabilityStatus: p.stock > 0 ? 'In Stock' : 'Out of Stock',
     shippingInformation: 'Ships in 1-2 business days',
     returnPolicy: '30-day return policy',
@@ -115,18 +126,40 @@ exports.getProductById = async (req, res) => {
 exports.createProduct = async (req, res) => {
   const { name, description, price, category, stock } = req.body;
   
-  // Use file path if image is uploaded, or default seeded link if provided
-  let imagePath = '';
-  if (req.file) {
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ message: 'Valid product name is required.' });
+  }
+  const numPrice = parseFloat(price);
+  if (isNaN(numPrice) || numPrice <= 0) {
+    return res.status(400).json({ message: 'Price must be a positive number.' });
+  }
+  const numStock = parseInt(stock, 10);
+  if (isNaN(numStock) || numStock < 0) {
+    return res.status(400).json({ message: 'Stock must be a non-negative number.' });
+  }
+  if (!category || !['smartphones', 'laptops'].includes(category)) {
+    return res.status(400).json({ message: 'Category must be either smartphones or laptops.' });
+  }
+
+  let imagePath = req.body.image || '';
+  let image2Path = req.body.image2 || req.body.image_2 || null;
+  let image3Path = req.body.image3 || req.body.image_3 || null;
+
+  if (req.files && Array.isArray(req.files)) {
+    const f1 = req.files.find(f => f.fieldname === 'image');
+    const f2 = req.files.find(f => f.fieldname === 'image2' || f.fieldname === 'image_2');
+    const f3 = req.files.find(f => f.fieldname === 'image3' || f.fieldname === 'image_3');
+    if (f1) imagePath = `uploads/${f1.filename}`;
+    if (f2) image2Path = `uploads/${f2.filename}`;
+    if (f3) image3Path = `uploads/${f3.filename}`;
+  } else if (req.file) {
     imagePath = `uploads/${req.file.filename}`;
-  } else if (req.body.image) {
-    imagePath = req.body.image;
   }
 
   try {
     const [result] = await db.query(
-      'INSERT INTO products (name, description, price, category, stock, image) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, description, price, category, stock, imagePath]
+      'INSERT INTO products (name, description, price, category, stock, image, image_2, image_3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [name.trim(), description || '', numPrice, category, numStock, imagePath, image2Path, image3Path]
     );
 
     const [newProd] = await db.query('SELECT * FROM products WHERE id = ?', [result.insertId]);
@@ -151,21 +184,41 @@ exports.updateProduct = async (req, res) => {
     }
 
     let imagePath = existing[0].image;
-    if (req.file) {
+    let image2Path = existing[0].image_2;
+    let image3Path = existing[0].image_3;
+
+    if (req.files && Array.isArray(req.files)) {
+      const f1 = req.files.find(f => f.fieldname === 'image');
+      const f2 = req.files.find(f => f.fieldname === 'image2' || f.fieldname === 'image_2');
+      const f3 = req.files.find(f => f.fieldname === 'image3' || f.fieldname === 'image_3');
+      if (f1) imagePath = `uploads/${f1.filename}`;
+      if (f2) image2Path = `uploads/${f2.filename}`;
+      if (f3) image3Path = `uploads/${f3.filename}`;
+    } else if (req.file) {
       imagePath = `uploads/${req.file.filename}`;
-    } else if (req.body.image) {
+    }
+
+    if (req.body.image && !(req.files && req.files.some(f => f.fieldname === 'image'))) {
       imagePath = req.body.image;
+    }
+    if ((req.body.image2 || req.body.image_2) && !(req.files && req.files.some(f => f.fieldname === 'image2' || f.fieldname === 'image_2'))) {
+      image2Path = req.body.image2 || req.body.image_2;
+    }
+    if ((req.body.image3 || req.body.image_3) && !(req.files && req.files.some(f => f.fieldname === 'image3' || f.fieldname === 'image_3'))) {
+      image3Path = req.body.image3 || req.body.image_3;
     }
 
     await db.query(
-      'UPDATE products SET name = ?, description = ?, price = ?, category = ?, stock = ?, image = ? WHERE id = ?',
+      'UPDATE products SET name = ?, description = ?, price = ?, category = ?, stock = ?, image = ?, image_2 = ?, image_3 = ? WHERE id = ?',
       [
         name || existing[0].name,
         description !== undefined ? description : existing[0].description,
-        price || existing[0].price,
+        price !== undefined ? parseFloat(price) : existing[0].price,
         category || existing[0].category,
-        stock !== undefined ? stock : existing[0].stock,
+        stock !== undefined ? parseInt(stock, 10) : existing[0].stock,
         imagePath,
+        image2Path,
+        image3Path,
         productId
       ]
     );

@@ -14,9 +14,10 @@ export class ViewProduct {
   viewproduct: any;
   id: any;
   product: any;
+  selectedImageIndex = 0;
   
   constructor(
-    private api: Api,
+    public api: Api,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private location: Location,
@@ -28,7 +29,47 @@ export class ViewProduct {
     this.id = this.route.snapshot.paramMap.get('id');
     this.api.getProductById(this.id).subscribe((res: any) => {
       this.product = res;
+      this.selectedImageIndex = 0;
       this.cdr.detectChanges();
+    });
+  }
+
+  selectImage(index: number) {
+    this.selectedImageIndex = index;
+    this.cdr.detectChanges();
+  }
+
+  prevImage() {
+    if (this.product?.images?.length) {
+      this.selectedImageIndex = (this.selectedImageIndex - 1 + this.product.images.length) % this.product.images.length;
+      this.cdr.detectChanges();
+    }
+  }
+
+  nextImage() {
+    if (this.product?.images?.length) {
+      this.selectedImageIndex = (this.selectedImageIndex + 1) % this.product.images.length;
+      this.cdr.detectChanges();
+    }
+  }
+
+  isInWishlist(): boolean {
+    return this.api.isInWishlist(this.product?.id);
+  }
+
+  toggleWishlist() {
+    if (!this.api.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.api.toggleWishlist(this.product.id).subscribe({
+      next: () => {
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        alert(err.error?.message || 'Failed to update wishlist.');
+      }
     });
   }
 

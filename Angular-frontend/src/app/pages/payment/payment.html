@@ -1,6 +1,6 @@
 <div class="container my-5">
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-7">
       
       <!-- LOADING & PROCESSING VIEW -->
       <div class="card shadow border-0 text-center p-5" *ngIf="isProcessing">
@@ -29,29 +29,98 @@
         </div>
         <div class="card-body p-4">
           
-          <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded">
-            <span>Order ID: <strong>MBL-ORD-{{ orderId }}</strong></span>
-            <span class="fs-5 text-danger fw-bold">Amount: ${{ totalAmount | number:'1.2-2' }}</span>
+          <!-- Order and Price Breakdown -->
+          <div class="bg-light p-3 rounded mb-4 border">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span>Order Reference:</span>
+              <strong>MBL-ORD-{{ orderId }}</strong>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span>Product Subtotal:</span>
+              <span class="fw-semibold">₹{{ baseAmount | number:'1.2-2' }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-1 text-primary" *ngIf="paymentMethod === 'cod'">
+              <span>COD Handling Charge:</span>
+              <span class="fw-bold">+ ₹8.00</span>
+            </div>
+            <hr class="my-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fs-5 fw-bold">Final Total:</span>
+              <span class="fs-4 text-danger fw-bold">₹{{ totalAmount | number:'1.2-2' }}</span>
+            </div>
           </div>
 
-          <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-            {{ errorMessage }}
+          <!-- FAILED TRANSACTION ALERT (Wallet or Payment Failure) -->
+          <div *ngIf="isFailed || errorMessage" class="alert alert-danger p-3 mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center mb-2">
+              <span class="fs-4 me-2">❌</span>
+              <strong class="fs-6">Transaction Failed</strong>
+            </div>
+            <p class="mb-3">{{ errorMessage || 'Payment failed. Please try again or choose another payment method.' }}</p>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-outline-danger btn-sm fw-semibold" (click)="retryPayment()">
+                🔄 Retry Payment
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" (click)="chooseAnotherMethod()">
+                💳 Choose Another Payment Method
+              </button>
+            </div>
           </div>
 
+          <!-- Payment Methods Selector -->
           <div class="mb-4">
-            <label class="form-label fw-bold mb-2">Select Payment Method</label>
-            <div class="d-flex gap-4">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payMethod" id="payUpi" value="upi" [(ngModel)]="paymentMethod" />
-                <label class="form-check-label fw-bold" for="payUpi">
-                  ● UPI
-                </label>
+            <label class="form-label fw-bold mb-3 fs-6">Select Payment Method</label>
+            <div class="row g-2">
+              <!-- UPI -->
+              <div class="col-6 col-md-3">
+                <div 
+                  class="border rounded p-2 text-center h-100"
+                  [class.border-primary]="paymentMethod === 'upi'"
+                  [class.bg-light]="paymentMethod === 'upi'"
+                  style="cursor: pointer;"
+                  (click)="setPaymentMethod('upi')">
+                  <div class="fw-bold">● UPI</div>
+                  <small class="text-muted d-block">Google Pay / PhonePe</small>
+                </div>
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payMethod" id="payCard" value="card" [(ngModel)]="paymentMethod" />
-                <label class="form-check-label fw-bold" for="payCard">
-                  ● Debit/Credit Card
-                </label>
+
+              <!-- Card -->
+              <div class="col-6 col-md-3">
+                <div 
+                  class="border rounded p-2 text-center h-100"
+                  [class.border-primary]="paymentMethod === 'card'"
+                  [class.bg-light]="paymentMethod === 'card'"
+                  style="cursor: pointer;"
+                  (click)="setPaymentMethod('card')">
+                  <div class="fw-bold">● Card</div>
+                  <small class="text-muted d-block">Debit / Credit</small>
+                </div>
+              </div>
+
+              <!-- Wallet -->
+              <div class="col-6 col-md-3">
+                <div 
+                  class="border rounded p-2 text-center h-100"
+                  [class.border-primary]="paymentMethod === 'wallet'"
+                  [class.bg-light]="paymentMethod === 'wallet'"
+                  style="cursor: pointer;"
+                  (click)="setPaymentMethod('wallet')">
+                  <div class="fw-bold">● Wallet</div>
+                  <small class="text-muted d-block">Digital Wallet</small>
+                </div>
+              </div>
+
+              <!-- Cash on Delivery -->
+              <div class="col-6 col-md-3">
+                <div 
+                  class="border rounded p-2 text-center h-100"
+                  [class.border-primary]="paymentMethod === 'cod'"
+                  [class.bg-light]="paymentMethod === 'cod'"
+                  style="cursor: pointer;"
+                  (click)="setPaymentMethod('cod')">
+                  <div class="fw-bold">● COD</div>
+                  <small class="text-muted d-block">+ ₹8 charge</small>
+                </div>
               </div>
             </div>
           </div>
@@ -61,7 +130,7 @@
           <!-- UPI Form Fields -->
           <div *ngIf="paymentMethod === 'upi'">
             <div class="mb-4">
-              <label for="upiId" class="form-label">UPI ID</label>
+              <label for="upiId" class="form-label fw-semibold">UPI ID</label>
               <input 
                 type="text" 
                 class="form-control form-control-lg" 
@@ -75,14 +144,14 @@
             </div>
 
             <div class="d-grid mt-4">
-              <button type="button" class="btn btn-success btn-lg" (click)="processPayment()">Pay ${{ totalAmount | number:'1.2-2' }}</button>
+              <button type="button" class="btn btn-success btn-lg fw-semibold" (click)="processPayment()">Pay ₹{{ totalAmount | number:'1.2-2' }}</button>
             </div>
           </div>
 
           <!-- Card Form Fields -->
           <div *ngIf="paymentMethod === 'card'">
             <div class="mb-3">
-              <label for="cardHolderName" class="form-label">Card Holder Name</label>
+              <label for="cardHolderName" class="form-label fw-semibold">Card Holder Name</label>
               <input 
                 type="text" 
                 class="form-control" 
@@ -95,7 +164,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="cardNumber" class="form-label">Card Number</label>
+              <label for="cardNumber" class="form-label fw-semibold">Card Number</label>
               <input 
                 type="text" 
                 class="form-control" 
@@ -110,7 +179,7 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="expiryDate" class="form-label">Expiry Date</label>
+                <label for="expiryDate" class="form-label fw-semibold">Expiry Date</label>
                 <input 
                   type="text" 
                   class="form-control" 
@@ -123,7 +192,7 @@
                 />
               </div>
               <div class="col-md-6 mb-3">
-                <label for="cvv" class="form-label">CVV</label>
+                <label for="cvv" class="form-label fw-semibold">CVV</label>
                 <input 
                   type="password" 
                   class="form-control" 
@@ -138,7 +207,66 @@
             </div>
 
             <div class="d-grid mt-4">
-              <button type="button" class="btn btn-success btn-lg" (click)="processPayment()">Pay ${{ totalAmount | number:'1.2-2' }}</button>
+              <button type="button" class="btn btn-success btn-lg fw-semibold" (click)="processPayment()">Pay ₹{{ totalAmount | number:'1.2-2' }}</button>
+            </div>
+          </div>
+
+          <!-- Wallet Option -->
+          <div *ngIf="paymentMethod === 'wallet'">
+            <div class="border rounded p-4 bg-light mb-4 text-center">
+              <div class="fs-1 mb-2">👛</div>
+              <h5 class="fw-bold mb-1">MobBuyLab Wallet</h5>
+              <p class="text-muted small mb-2">Linked to your registered account</p>
+              <div class="bg-white p-3 rounded border my-3 d-inline-block px-4">
+                <span class="text-secondary small d-block">Available Wallet Balance</span>
+                <span class="fs-4 fw-bold text-success">₹{{ walletBalance | number:'1.2-2' }}</span>
+              </div>
+              <p class="text-muted small mb-0">The order amount of ₹{{ totalAmount | number:'1.2-2' }} will be debited from your wallet.</p>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+              <button type="button" class="btn btn-success btn-lg fw-semibold" (click)="processPayment()">
+                Pay ₹{{ totalAmount | number:'1.2-2' }} with Wallet
+              </button>
+            </div>
+          </div>
+
+          <!-- Cash on Delivery Option -->
+          <div *ngIf="paymentMethod === 'cod'">
+            <div class="border rounded p-4 bg-light mb-4">
+              <div class="d-flex align-items-center mb-3">
+                <span class="fs-2 me-3">💵</span>
+                <div>
+                  <h5 class="fw-bold mb-0">Cash on Delivery</h5>
+                  <small class="text-muted">Pay at doorstep upon receiving order</small>
+                </div>
+              </div>
+
+              <div class="card p-3 border-0 bg-white shadow-sm mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Product Subtotal:</span>
+                  <span>₹{{ baseAmount | number:'1.2-2' }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 text-primary fw-semibold">
+                  <span>COD Charge:</span>
+                  <span>₹8.00</span>
+                </div>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                  <span>Final Total:</span>
+                  <span class="text-danger">₹{{ totalAmount | number:'1.2-2' }}</span>
+                </div>
+              </div>
+
+              <p class="small text-muted mb-0">
+                An additional COD charge of ₹8 is applied for delivery payment handling. Please keep the exact amount ready at delivery.
+              </p>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="button" class="btn btn-success btn-lg fw-semibold" (click)="processPayment()">
+                Confirm Order with Cash on Delivery (₹{{ totalAmount | number:'1.2-2' }})
+              </button>
             </div>
           </div>
 

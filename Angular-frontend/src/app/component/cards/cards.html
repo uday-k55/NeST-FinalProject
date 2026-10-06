@@ -1,19 +1,39 @@
-<div class="card" style="width: 18rem;">
-  <img src="{{ product.thumbnail }}" class="card-img-top" alt="{{ product.title }}">
-
-  <div class="card-body">
-    <h5 class="card-title">{{ product.title }}</h5>
-    <p class="card-text">{{ product.brand }}<br>
-        <b>${{ product.price }}</b></p>
+<div class="card h-100 shadow-sm border-0 product-card" style="width: 18rem;">
+  <div class="position-relative overflow-hidden text-center bg-light rounded-top">
+    <img [src]="product.thumbnail" class="card-img-top p-3" [alt]="product.title" style="height: 200px; object-fit: contain;">
+    <button 
+      type="button" 
+      class="btn btn-sm wishlist-btn position-absolute top-0 end-0 m-2 shadow-sm"
+      [class.btn-light]="!isInWishlist()"
+      [class.text-danger]="!isInWishlist()"
+      [class.btn-danger]="isInWishlist()"
+      [class.text-white]="isInWishlist()"
+      (click)="toggleWishlist()"
+      [title]="isInWishlist() ? 'Remove from Wishlist' : 'Add to Wishlist'">
+      {{ isInWishlist() ? '❤️ Wishlist' : '♡ Add to Wishlist' }}
+    </button>
   </div>
-  <ul class="list-group list-group-flush">
-    <li class="list-group-item">
-    {{ product.discountPercentage }}% OFF<br>
-    ⭐ {{ product.rating }}<br>
-    {{ product.availabilityStatus }}<br></li>
-  </ul>
-    <div class="btn-group" role="group" aria-label="Action buttons">
+
+  <div class="card-body d-flex flex-column">
+    <h5 class="card-title fw-bold mb-1 text-truncate" [title]="product.title">{{ product.title }}</h5>
+    <p class="card-text text-muted mb-2">
+      <small>{{ product.brand }}</small><br>
+      <span class="fs-5 text-danger fw-bold">₹{{ product.price | number:'1.2-2' }}</span>
+    </p>
+    <ul class="list-group list-group-flush mb-3 flex-grow-1">
+      <li class="list-group-item px-0 py-1 text-success fw-semibold border-0">
+        {{ product.discountPercentage }}% OFF
+      </li>
+      <li class="list-group-item px-0 py-1 border-0">
+        ⭐ {{ product.rating }}
+      </li>
+      <li class="list-group-item px-0 py-1 border-0">
+        <span class="badge bg-secondary">{{ product.availabilityStatus }}</span>
+      </li>
+    </ul>
+    <div class="btn-group w-100" role="group" aria-label="Action buttons">
       <button type="button" class="btn btn-outline-info" style="cursor: pointer;" [routerLink]="['/view-product',product.id]">More Details</button>
       <button type="button" class="btn btn-outline-warning" (click)="onBuy()">Buy</button>
     </div>
+  </div>
 </div>

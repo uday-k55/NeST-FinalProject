@@ -1,10 +1,10 @@
 const db = require('../config/db');
 
 exports.createOrder = async (req, res) => {
-  const { address } = req.body;
+  const { address, cod_charge, payment_method } = req.body;
   const userId = req.user.id;
 
-  if (!address) {
+  if (!address || (typeof address === 'string' && !address.trim())) {
     return res.status(400).json({ message: 'Shipping address is required.' });
   }
 
@@ -27,20 +27,29 @@ exports.createOrder = async (req, res) => {
     }
 
     // 2. Validate stock and calculate total amount
-    let totalAmount = 0;
+    let subtotal = 0;
     for (const item of cartItems) {
       if (item.stock < item.quantity) {
         await connection.rollback();
         return res.status(400).json({ message: `Product "${item.name}" has insufficient stock. Only ${item.stock} left.` });
       }
-      totalAmount += parseFloat(item.price) * item.quantity;
+      subtotal += parseFloat(item.price) * item.quantity;
+    }
+
+    // Apply 10% discount consistent with frontend
+    const discount = parseFloat((subtotal * 0.1).toFixed(2));
+    let totalAmount = parseFloat((subtotal - discount).toFixed(2));
+
+    const codAmount = (payment_method === 'Cash on Delivery' || parseFloat(cod_charge || 0) === 8) ? 8.00 : 0.00;
+    if (codAmount > 0) {
+      totalAmount = parseFloat((totalAmount + codAmount).toFixed(2));
     }
 
     // 3. Create order entry
     const [orderResult] = await connection.query(
-      `INSERT INTO orders (user_id, total_amount, payment_status, order_status, address) 
-       VALUES (?, ?, 'Pending', 'Pending', ?)`,
-      [userId, totalAmount, address]
+      `INSERT INTO orders (user_id, total_amount, payment_status, order_status, address, cod_charge, payment_method) 
+       VALUES (?, ?, 'Pending', 'Pending', ?, ?, ?)`,
+      [userId, totalAmount, address, codAmount, payment_method || null]
     );
     const orderId = orderResult.insertId;
 
@@ -66,6 +75,9 @@ exports.createOrder = async (req, res) => {
     res.status(201).json({
       message: 'Order created successfully.',
       orderId,
+      subtotal,
+      discount,
+      cod_charge: codAmount,
       totalAmount
     });
 
@@ -86,7 +98,7 @@ exports.getOrders = async (req, res) => {
     if (req.user.role === 'admin') {
       // Admin sees all orders with customer names
       queryStr = `
-        SELECT o.id, o.user_id, o.total_amount, o.payment_status, o.order_status, o.address, o.created_at, u.name as customer_name, u.email as customer_email
+        SELECT o.id, o.user_id, o.total_amount, o.cod_charge, o.payment_method, o.payment_status, o.order_status, o.address, o.created_at, u.name as customer_name, u.email as customer_email
         FROM orders o
         JOIN users u ON o.user_id = u.id
         ORDER BY o.created_at DESC
@@ -94,7 +106,7 @@ exports.getOrders = async (req, res) => {
     } else {
       // Regular user sees only their orders
       queryStr = `
-        SELECT id, user_id, total_amount, payment_status, order_status, address, created_at
+        SELECT id, user_id, total_amount, cod_charge, payment_method, payment_status, order_status, address, created_at
         FROM orders o
         WHERE user_id = ?
         ORDER BY created_at DESC
@@ -118,14 +130,14 @@ exports.getOrderById = async (req, res) => {
 
     if (req.user.role === 'admin') {
       orderQuery = `
-        SELECT o.id, o.user_id, o.total_amount, o.payment_status, o.order_status, o.address, o.created_at, u.name as customer_name, u.email as customer_email
+        SELECT o.id, o.user_id, o.total_amount, o.cod_charge, o.payment_method, o.payment_status, o.order_status, o.address, o.created_at, u.name as customer_name, u.email as customer_email
         FROM orders o
         JOIN users u ON o.user_id = u.id
         WHERE o.id = ?
       `;
     } else {
       orderQuery = `
-        SELECT id, user_id, total_amount, payment_status, order_status, address, created_at
+        SELECT id, user_id, total_amount, cod_charge, payment_method, payment_status, order_status, address, created_at
         FROM orders
         WHERE id = ? AND user_id = ?
       `;

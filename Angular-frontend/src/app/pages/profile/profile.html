@@ -91,7 +91,11 @@
                 <tr *ngFor="let order of orders">
                   <td><strong>MBL-ORD-{{ order.id }}</strong></td>
                   <td>{{ order.created_at | date:'shortDate' }}</td>
-                  <td class="text-danger fw-bold">${{ order.total_amount }}</td>
+                  <td class="text-danger fw-bold">
+                    ₹{{ order.total_amount | number:'1.2-2' }}
+                    <small class="badge bg-secondary d-block mt-1" *ngIf="order.payment_method">{{ order.payment_method }}</small>
+                    <small class="text-muted d-block" *ngIf="order.cod_charge > 0">(incl. ₹8 COD)</small>
+                  </td>
                   <td>
                     <span class="badge" [ngClass]="order.payment_status === 'Paid' ? 'bg-success' : 'bg-warning text-dark'">
                       {{ order.payment_status }}

@@ -73,18 +73,54 @@ export class Profile {
     this.successMessage = '';
   }
 
+  validateEmail(email: string): boolean {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email.trim());
+  }
+
+  validatePassword(password: string): string | null {
+    if (password.length < 8 || password.length > 32) {
+      return 'Password must be between 8 and 32 characters long.';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter (A-Z).';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter (a-z).';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number (0-9).';
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return 'Password must contain at least one special character (!@#$%^&*...).';
+    }
+    return null;
+  }
+
   onSave() {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.name || !this.email) {
-      this.errorMessage = 'Name and email are required.';
+    if (!this.name.trim() || !/^[A-Za-z\s]{2,50}$/.test(this.name.trim())) {
+      this.errorMessage = 'Please enter a valid Name containing only letters and spaces (2-50 characters).';
       return;
     }
 
-    if (this.password && this.password !== this.confirmPassword) {
-      this.errorMessage = 'Passwords do not match.';
+    if (!this.email.trim() || !this.validateEmail(this.email)) {
+      this.errorMessage = 'Please enter a valid email address (e.g. name@example.com).';
       return;
+    }
+
+    if (this.password) {
+      const pwdError = this.validatePassword(this.password);
+      if (pwdError) {
+        this.errorMessage = pwdError;
+        return;
+      }
+      if (this.password !== this.confirmPassword) {
+        this.errorMessage = 'Passwords do not match.';
+        return;
+      }
     }
 
     const updatedProfile: any = {

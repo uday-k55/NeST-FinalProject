@@ -11,11 +11,22 @@ import { Api } from '../../api';
   styleUrl: './navbar.css',
 })
 export class Navbar {
+  isMenuOpen = false;
+
   constructor(public api: Api, private router: Router) {}
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu() {
+    this.isMenuOpen = false;
+  }
 
   onLogout() {
     this.api.logout();
     this.router.navigate(['/']);
+    this.closeMenu();
   }
 
   onSearchSubmit(event: Event, searchInput: HTMLInputElement) {
@@ -27,5 +38,6 @@ export class Navbar {
     const targetRoute = currentUrl.includes('laptops') ? '/laptops' : '/mobiles';
     
     this.router.navigate([targetRoute], { queryParams: { search: query }, queryParamsHandling: 'merge' });
+    this.closeMenu();
   }
 }

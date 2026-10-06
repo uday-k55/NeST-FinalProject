@@ -37,7 +37,9 @@ export class AdminDashboard {
     price: 0,
     category: 'smartphones',
     stock: 0,
-    image: null as File | null
+    image: null as File | null,
+    image2: null as File | null,
+    image3: null as File | null
   };
   isEditingProduct = false;
   selectedProductId: number | null = null;
@@ -112,10 +114,10 @@ export class AdminDashboard {
     });
   }
 
-  onFileSelected(event: any) {
+  onFileSelected(event: any, field: 'image' | 'image2' | 'image3' = 'image') {
     const file = event.target.files[0];
     if (file) {
-      this.productForm.image = file;
+      (this.productForm as any)[field] = file;
     }
   }
 
@@ -126,7 +128,9 @@ export class AdminDashboard {
       price: 0,
       category: 'smartphones',
       stock: 0,
-      image: null
+      image: null,
+      image2: null,
+      image3: null
     };
     this.isEditingProduct = false;
     this.selectedProductId = null;
@@ -141,7 +145,9 @@ export class AdminDashboard {
       price: product.price,
       category: product.category,
       stock: product.stock,
-      image: null // Let user select a new one or keep existing
+      image: null,
+      image2: null,
+      image3: null
     };
     this.cdr.detectChanges();
   }
@@ -150,14 +156,36 @@ export class AdminDashboard {
     this.productSuccessMessage = '';
     this.productErrorMessage = '';
 
+    if (!this.productForm.name || !this.productForm.name.trim()) {
+      this.productErrorMessage = 'Product name is required.';
+      return;
+    }
+
+    if (this.productForm.price <= 0) {
+      this.productErrorMessage = 'Product price must be greater than zero.';
+      return;
+    }
+
+    if (this.productForm.stock < 0) {
+      this.productErrorMessage = 'Stock quantity cannot be negative.';
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('name', this.productForm.name);
-    formData.append('description', this.productForm.description);
+    formData.append('name', this.productForm.name.trim());
+    formData.append('description', this.productForm.description || '');
     formData.append('price', this.productForm.price.toString());
     formData.append('category', this.productForm.category);
     formData.append('stock', this.productForm.stock.toString());
+    
     if (this.productForm.image) {
       formData.append('image', this.productForm.image);
+    }
+    if ((this.productForm as any).image2) {
+      formData.append('image2', (this.productForm as any).image2);
+    }
+    if ((this.productForm as any).image3) {
+      formData.append('image3', (this.productForm as any).image3);
     }
 
     if (this.isEditingProduct && this.selectedProductId !== null) {

@@ -90,7 +90,7 @@
               <div class="card bg-danger text-white border-0 shadow-sm">
                 <div class="card-body p-4">
                   <span class="fs-6 text-uppercase d-block mb-2">Revenue</span>
-                  <h2 class="fw-bold mb-0">${{ stats.totalRevenue | number:'1.2-2' }}</h2>
+                  <h2 class="fw-bold mb-0">₹{{ stats.totalRevenue | number:'1.2-2' }}</h2>
                 </div>
               </div>
             </div>
@@ -119,7 +119,7 @@
                     <tr *ngFor="let order of stats.latestOrders">
                       <td><strong>MBL-ORD-{{ order.id }}</strong></td>
                       <td>{{ order.customer_name }}</td>
-                      <td class="text-danger fw-bold">${{ order.total_amount }}</td>
+                      <td class="text-danger fw-bold">₹{{ order.total_amount | number:'1.2-2' }}</td>
                       <td>
                         <span class="badge bg-success" *ngIf="order.payment_status === 'Paid'">Paid</span>
                         <span class="badge bg-warning text-dark" *ngIf="order.payment_status !== 'Paid'">{{ order.payment_status }}</span>
@@ -165,7 +165,7 @@
                           <strong class="d-block">{{ p.title }}</strong>
                         </td>
                         <td><span class="badge bg-secondary">{{ p.category }}</span></td>
-                        <td class="text-danger fw-bold">${{ p.price }}</td>
+                        <td class="text-danger fw-bold">₹{{ p.price | number:'1.2-2' }}</td>
                         <td>
                           <span class="badge" [ngClass]="p.stock > 0 ? 'bg-success' : 'bg-danger'">
                             {{ p.stock }} left
@@ -208,7 +208,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="prodPrice" class="form-label">Price ($)</label>
+                    <label for="prodPrice" class="form-label">Price (₹)</label>
                     <input type="number" class="form-control" id="prodPrice" name="price" [(ngModel)]="productForm.price" min="0" step="0.01" required />
                   </div>
 
@@ -226,9 +226,21 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="prodImage" class="form-label">Product Image</label>
-                    <input type="file" class="form-control" id="prodImage" (change)="onFileSelected($event)" />
-                    <small class="text-muted d-block mt-1">Leave empty to keep existing image during edits.</small>
+                    <label for="prodImage" class="form-label fw-semibold">Primary Product Image</label>
+                    <input type="file" class="form-control" id="prodImage" (change)="onFileSelected($event, 'image')" />
+                    <small class="text-muted d-block mt-1">Main thumbnail image. Leave empty to keep existing.</small>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="prodImage2" class="form-label fw-semibold">Additional Image 1</label>
+                    <input type="file" class="form-control" id="prodImage2" (change)="onFileSelected($event, 'image2')" />
+                    <small class="text-muted d-block mt-1">Second view/angle image.</small>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="prodImage3" class="form-label fw-semibold">Additional Image 2</label>
+                    <input type="file" class="form-control" id="prodImage3" (change)="onFileSelected($event, 'image3')" />
+                    <small class="text-muted d-block mt-1">Third view/angle image.</small>
                   </div>
 
                   <div class="d-grid gap-2 mt-4">
@@ -299,7 +311,7 @@
                       <tr *ngFor="let o of orders">
                         <td><strong>MBL-ORD-{{ o.id }}</strong></td>
                         <td>{{ o.customer_name }}</td>
-                        <td class="text-danger fw-bold">${{ o.total_amount }}</td>
+                        <td class="text-danger fw-bold">₹{{ o.total_amount | number:'1.2-2' }}</td>
                         <td>
                           <span class="badge" [ngClass]="o.payment_status === 'Paid' ? 'bg-success' : 'bg-warning text-dark'">
                             {{ o.payment_status }}
@@ -336,7 +348,7 @@
 
                 <p>Order: <strong>MBL-ORD-{{ selectedOrder.id }}</strong></p>
                 <p>Customer: {{ selectedOrder.customer_name }}</p>
-                <p>Total: <strong class="text-danger">${{ selectedOrder.total_amount }}</strong></p>
+                <p>Total: <strong class="text-danger">₹{{ selectedOrder.total_amount | number:'1.2-2' }}</strong></p>
 
                 <div class="mb-4">
                   <label for="orderStatusSelect" class="form-label fw-bold">Select New Status</label>

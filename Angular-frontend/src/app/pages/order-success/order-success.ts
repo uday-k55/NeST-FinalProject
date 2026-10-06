@@ -28,6 +28,7 @@ export class OrderSuccess {
       this.estimatedDelivery = delivery;
 
       this.api.syncCartCount();
+      this.api.syncWishlist();
       this.cdr.detectChanges();
     });
   }
